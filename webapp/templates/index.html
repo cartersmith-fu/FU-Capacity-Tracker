@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>FU Capacity Tracker</title>
+  <link rel="stylesheet" href="../static/style.css">
+</head>
+<body>
+  <h1>Furman Gym & Dining Hall Capacity</h1>
+  <table>
+    <tr><th>Timestamp</th><th>Device Count</th></tr>
+    {% for row in data %}
+    <tr>
+      <td>{{ row.timestamp }}</td>
+      <td>{{ row.count }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</body>
+</html>
