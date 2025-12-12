@@ -44,26 +44,6 @@
   <span class="text-slate-400">Current building status</span>
 </div>
             <!-- Stats Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                <div class="bg-slate-800 rounded-xl p-6 border border-slate-700">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-slate-400 text-sm">Active Connections</span>
-                        <svg class="text-green-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M5 13a10 10 0 0 1 14 0"/><path d="M8.5 16.5a5 5 0 0 1 7 0"/><path d="M12 20h.01"/>
-                        </svg>
-                    </div>
-                    <div id="active-count" class="text-3xl font-bold text-white">-</div>
-                </div>
-
-                <div class="bg-slate-800 rounded-xl p-6 border border-slate-700">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-slate-400 text-sm">Inactive Periods</span>
-                        <svg class="text-slate-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <line x1="2" y1="2" x2="22" y2="22"/><path d="M8.5 16.5a5 5 0 0 1 7 0"/>
-                        </svg>
-                    </div>
-                    <div id="inactive-count" class="text-3xl font-bold text-white">-</div>
-                </div>
 
                 <div class="bg-slate-800 rounded-xl p-6 border border-slate-700">
                     <div class="flex items-center justify-between mb-2">
@@ -73,6 +53,16 @@
                         </svg>
                     </div>
                     <div id="unique-count" class="text-3xl font-bold text-white">-</div>
+                </div>
+
+                <div class="bg-slate-800 rounded-xl p-6 border border-slate-700">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-slate-400 text-sm">Estimated People</span>
+                        <svg class="text-orange-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="7" r="4"/><path d="M5.5 21v-2a4.5 4.5 0 0 1 9 0v2"/>
+                        </svg>
+                    </div>
+                    <div id="people-count" class="text-3xl font-bold text-white">-</div>
                 </div>
 
                 <div class="bg-slate-800 rounded-xl p-6 border border-slate-700">
@@ -142,8 +132,6 @@
             let active = 0;
             let inactive = 0;
             const uniqueIPs = new Set();
-
-            // Calculate stats
             entries.forEach(([_, ip]) => {
                 if (ip === '0.0.0.0') {
                     inactive++;
@@ -154,12 +142,29 @@
             });
 
             const activityRate = entries.length > 0 ? ((active / entries.length) * 100).toFixed(1) : 0;
-
+            const estimatedPeople = Math.round(uniqueIPs.size / 1.5);
+            const maxCapacity = 150
+            const occupancyPercent = estimatedPeople > 0 ? Math.round((estimatedPeople / maxCapacity) * 100) : 0;
             // Update stats
-            document.getElementById('active-count').textContent = active;
-            document.getElementById('inactive-count').textContent = inactive;
+    
             document.getElementById('unique-count').textContent = uniqueIPs.size;
             document.getElementById('activity-rate').textContent = activityRate + '%';
+            document.getElementById('people-count').textContent = estimatedPeople;
+            document.getElementById('occupancy-bar').style.width = occupancyPercent + '%';
+            document.querySelector('.text-slate-400.text-sm').textContent = `Occupancy: ${occupancyPercent}%`;
+
+            // Update status
+            const statusEl = document.getElementById('occupancy-status');
+            if (occupancyPercent < 40) {
+                statusEl.textContent = 'Quiet';
+                statusEl.className = 'text-3xl font-bold px-4 py-2 rounded-lg bg-green-600 text-white';
+            } else if (occupancyPercent < 70) {
+                statusEl.textContent = 'Moderate';
+                statusEl.className = 'text-3xl font-bold px-4 py-2 rounded-lg bg-yellow-500 text-white';
+            } else {
+                statusEl.textContent = 'Busy';
+                statusEl.className = 'text-3xl font-bold px-4 py-2 rounded-lg bg-red-600 text-white';
+            }
 
             // Update chart
             updateChart(entries);
